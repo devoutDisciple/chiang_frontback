@@ -1,0 +1,35 @@
+{
+  "name": "baomu-frontback",
+  "version": "1.0.0",
+  "description": "",
+  "main": "formatModels.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.4.1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "image-size": "^1.0.0",
+    "moment": "^2.29.1",
+    "multer": "^1.4.3",
+    "mysql2": "^2.3.3",
+    "node-schedule": "^2.0.0",
+    "request": "^2.88.2",
+    "sequelize": "^6.12.0-alpha.1",
+    "sequelize-auto": "^0.8.5",
+    "shelljs": "^0.8.4"
+  }
+}
