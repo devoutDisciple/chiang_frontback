@@ -18,7 +18,7 @@ module.exports = {
 				async (error, response, body) => {
 					if (error) res.send(resultMessage.error('登录失败'));
 					const { openid } = JSON.parse(body);
-					let userDetail = await userModal.findOne({ where: { wx_openid: openid } });
+					const userDetail = await userModal.findOne({ where: { wx_openid: openid } });
 					// 初始登录，仅仅获得了openid
 					if (!userDetail && !avatarUrl && !nickName) {
 						await userModal.create({
@@ -34,36 +34,29 @@ module.exports = {
 							photo: '',
 							create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
 						});
-						userDetail = {
-							wx_openid: openid,
-							username: '',
-							photo: '',
-						};
 					}
 					// 有了用户openid，却没用用户基本信息
 					if (userDetail && avatarUrl && nickName && (userDetail.photo === 'photo.png' || !userDetail.photo)) {
-						await userModal.update(
-							{
-								username: '',
-								photo: '',
-							},
-							{
-								where: {
-									wx_openid: openid,
-								},
-							},
-						);
-						userDetail = {
-							wx_openid: openid,
-							username: '',
-							photo: '',
-						};
+						await userModal.update({ username: nickName, photo: avatarUrl }, { where: { wx_openid: openid } });
 					}
 					let userResult = await userModal.findOne({ where: { wx_openid: openid } });
 					userResult = responseUtil.renderFieldsObj(userResult, ['id', 'wx_openid', 'username', 'photo']);
 					res.send(resultMessage.success(userResult));
 				},
 			);
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 通过userId微信登录
+	loginByUserId: async (req, res) => {
+		try {
+			const { userId } = req.body;
+			let userResult = await userModal.findOne({ where: { id: userId } });
+			userResult = responseUtil.renderFieldsObj(userResult, ['id', 'wx_openid', 'username', 'photo']);
+			res.send(resultMessage.success(userResult));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());
