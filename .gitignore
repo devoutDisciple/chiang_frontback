@@ -7,3 +7,5 @@ sshKey
 config
 asserts
 ssl
+wechatPayCert
+wechatPayCert/*
