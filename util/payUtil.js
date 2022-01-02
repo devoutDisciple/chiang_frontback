@@ -5,7 +5,7 @@ const config = require('../config/config');
 const ObjectUtil = require('./ObjectUtil');
 
 module.exports = {
-	payByWechat: ({ money, openid, ...rest }) => {
+	payByWechat: ({ money, openId, ...rest }) => {
 		// money:单位元，微信支付单位是分
 		// openid:用户的openid
 		return new Promise(async (resolve, reject) => {
@@ -24,7 +24,7 @@ module.exports = {
 						total: Number((money * 100).toFixed(0)), // 单位分
 						currency: 'CNY',
 					},
-					payer: { openid },
+					payer: { openid: openId },
 					...rest,
 				};
 				const result = await pay.transactions_jsapi(params);
