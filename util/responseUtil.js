@@ -24,6 +24,9 @@ module.exports = {
 		if (!data || Object.keys(data) === 0) return result;
 		fieldsArr.forEach((key) => {
 			result[key] = data[key];
+			if (key === 'start_time' || key === 'end_time' || key === 'update_time') {
+				result[key] = moment(result[key]).format('YYYY-MM-DD HH:mm:ss');
+			}
 		});
 		return result;
 	},

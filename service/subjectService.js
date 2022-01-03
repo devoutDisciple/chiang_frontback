@@ -3,11 +3,14 @@ const resultMessage = require('../util/resultMessage');
 const sequelize = require('../dataSource/MysqlPoolClass');
 const subject = require('../models/subject');
 const teacher = require('../models/teacher');
+const subDetail = require('../models/detail');
 const responseUtil = require('../util/responseUtil');
 const config = require('../config/config');
 
 const subjectModal = subject(sequelize);
 const teacherModal = teacher(sequelize);
+const subDetailModal = subDetail(sequelize);
+const timeformat = 'YYYY.MM.DD';
 
 module.exports = {
 	// 获取所有课程
@@ -28,10 +31,9 @@ module.exports = {
 					item.teacher_ids = JSON.parse(item.teacher_ids);
 					teacher_ids = teacher_ids.concat(item.teacher_ids);
 				}
-				item.start_time = moment(item.start_time).format('YYYY.MM.DD');
-				item.end_time = moment(item.end_time).format('YYYY.MM.DD');
+				item.start_time = moment(item.start_time).format(timeformat);
+				item.end_time = moment(item.end_time).format(timeformat);
 			});
-			console.log(teacher_ids, 3232);
 			const teacherFields = ['id', 'name', 'photo'];
 			let teachers = await teacherModal.findAll({
 				where: { id: teacher_ids, is_delete: 1 },
@@ -41,7 +43,86 @@ module.exports = {
 			teachers.forEach((item) => {
 				item.photo = config.preUrl.photoUrl + item.photo;
 			});
-			await res.send(resultMessage.success({ subjectList: result, teachers }));
+			result.forEach(async (item) => {
+				if (item.teacher_ids && item.teacher_ids.length !== 0) {
+					let teacher_detail = [];
+					item.teacher_ids.forEach((teach_id) => {
+						teacher_detail = teacher_detail.concat(teachers.filter((tea) => tea.id === teach_id));
+					});
+					item.teacher_detail = teacher_detail;
+				}
+			});
+			await res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 获取课程详情
+	getSubjectDetailById: async (req, res) => {
+		try {
+			const { id } = req.query;
+			const commonFields = [
+				'id',
+				'project_id',
+				'title',
+				'url',
+				'start_time',
+				'end_time',
+				'teacher_ids',
+				'price',
+				'apply_price',
+				'cluster_price',
+				'total_person',
+				'limit_num',
+				'state',
+				'sort',
+			];
+			let detail = await subjectModal.findOne({
+				where: { id },
+				attributes: commonFields,
+			});
+			detail = responseUtil.renderFieldsObj(detail, commonFields);
+			detail.url = config.preUrl.subjectUrl + detail.url;
+			detail.start_time = moment(detail.start_time).format(timeformat);
+			detail.end_time = moment(detail.end_time).format(timeformat);
+			const teacher_ids = JSON.parse(detail.teacher_ids);
+			const teacherFields = ['id', 'name', 'photo'];
+			let teachers = await teacherModal.findAll({
+				where: { id: teacher_ids, is_delete: 1 },
+				attributes: teacherFields,
+			});
+			teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
+			teachers.forEach((item) => {
+				item.photo = config.preUrl.photoUrl + item.photo;
+			});
+			detail.teacher_detail = teachers;
+			const subDetailFields = ['id', 'url', 'type'];
+			let subAllDetail = await subDetailModal.findAll({
+				where: { sub_id: detail.id, is_delete: 1 },
+				attributes: subDetailFields,
+				order: [['sort', 'DESC']],
+			});
+			subAllDetail = responseUtil.renderFieldsAll(subAllDetail, subDetailFields);
+			const subUrls = subAllDetail.filter((item) => item.type === 1);
+			subUrls.forEach((item) => {
+				item.url = config.preUrl.subjectUrl + item.url;
+			});
+			const teachUrls = subAllDetail.filter((item) => item.type === 2);
+			teachUrls.forEach((item) => {
+				item.url = config.preUrl.subjectUrl + item.url;
+			});
+			const signupUrls = subAllDetail.filter((item) => item.type === 3);
+			signupUrls.forEach((item) => {
+				item.url = config.preUrl.subjectUrl + item.url;
+			});
+			detail.detail_urls = {
+				subUrls,
+				teachUrls,
+				signupUrls,
+			};
+			res.send(resultMessage.success(detail));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());

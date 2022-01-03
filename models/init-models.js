@@ -1,4 +1,5 @@
 var Sequelize = require("sequelize").Sequelize;
+var _detail = require("./detail");
 var _project = require("./project");
 var _subject = require("./subject");
 var _swiper = require("./swiper");
@@ -7,6 +8,7 @@ var _type = require("./type");
 var _user = require("./user");
 
 function initModels(sequelize) {
+  var detail = _detail(sequelize, Sequelize);
   var project = _project(sequelize, Sequelize);
   var subject = _subject(sequelize, Sequelize);
   var swiper = _swiper(sequelize, Sequelize);
@@ -16,6 +18,7 @@ function initModels(sequelize) {
 
 
   return {
+    detail,
     project,
     subject,
     swiper,

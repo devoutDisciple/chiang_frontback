@@ -8,4 +8,9 @@ router.get('/allSubjectByProjectId', (req, res) => {
 	subjectService.getAllSubjectByProjectId(req, res);
 });
 
+// 获取课程详情，根据id
+router.get('/subjectDetailById', (req, res) => {
+	subjectService.getSubjectDetailById(req, res);
+});
+
 module.exports = router;

@@ -18,6 +18,11 @@ module.exports = (sequelize) => {
       allowNull: true,
       comment: "title"
     },
+    url: {
+      type: Sequelize.STRING(255),
+      allowNull: true,
+      comment: "宣传图片"
+    },
     start_time: {
       type: Sequelize.DATE,
       allowNull: false,
@@ -76,7 +81,7 @@ module.exports = (sequelize) => {
       defaultValue: 0,
       comment: "限制人数"
     },
-    over: {
+    state: {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 1,
