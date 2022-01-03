@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 module.exports = {
 	// 返回 [{}, {}]
 	renderFieldsAll: (data, fieldsArr = []) => {
@@ -7,6 +9,9 @@ module.exports = {
 			const obj = {};
 			fieldsArr.forEach((key) => {
 				obj[key] = item[key];
+				if (key === 'start_time' || key === 'end_time' || key === 'update_time') {
+					obj[key] = moment(item[key]).format('YYYY-MM-DD HH:mm:ss');
+				}
 			});
 			result.push(obj);
 		});
