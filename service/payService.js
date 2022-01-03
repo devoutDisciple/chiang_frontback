@@ -1,5 +1,5 @@
 const resultMessage = require('../util/resultMessage');
-const payUtil = require('../util/payUtil');
+const wechatUtil = require('../util/wechatUtil');
 const config = require('../config/config');
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
 		try {
 			const { openId } = req.query;
 			if (!openId) return res.send(resultMessage.error('系统错误'));
-			let result = await payUtil.payByWechat({ money: 0.01, openId, description: '测试' });
+			let result = await wechatUtil.payByWechat({ money: 0.01, openId, description: '测试' });
 			result = {
 				timeStamp: parseInt(`${+new Date() / 1000}`, 10).toString(),
 				packageSign: result.package,

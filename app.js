@@ -17,7 +17,7 @@ const privateKey = fs.readFileSync(path.join(__dirname, './ssl/5784044_r0jd8.cn.
 const certificate = fs.readFileSync(path.join(__dirname, './ssl/5784044_r0jd8.cn.pem'), 'utf8');
 
 const credentials = {
-	// pfx: pfx, //微信商户平台证书,
+	// pfx: pfx, ,
 	key: privateKey,
 	cert: certificate,
 };
