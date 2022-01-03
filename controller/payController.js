@@ -8,4 +8,9 @@ router.get('/paySign', (req, res) => {
 	payService.getPaySign(req, res);
 });
 
+// 支付报名费用
+router.post('/paySignup', (req, res) => {
+	payService.paySignup(req, res);
+});
+
 module.exports = router;
