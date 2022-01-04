@@ -136,7 +136,7 @@ module.exports = {
 					body.resource.ciphertext,
 					body.resource.associated_data,
 					body.resource.nonce,
-					'ANNDSFPX0NQCGJ3WDH708HX6FJ9PN2P8',
+					config.wx_apiv3_secret,
 				);
 				resolve(result);
 			} catch (error) {
