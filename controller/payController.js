@@ -13,4 +13,9 @@ router.post('/paySignup', (req, res) => {
 	payService.paySignup(req, res);
 });
 
+// 处理微信支付返回接口
+router.post('/handleWechat', (req, res) => {
+	payService.handleWechat(req, res);
+});
+
 module.exports = router;

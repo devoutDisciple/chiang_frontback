@@ -33,6 +33,7 @@ module.exports = (sequelize) => {
     is_delete: {
       type: Sequelize.INTEGER,
       allowNull: true,
+      defaultValue: 1,
       comment: "1-存在 2-删除"
     }
   }, {
