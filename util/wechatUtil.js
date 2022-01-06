@@ -15,7 +15,7 @@ const pay = new WxPay({
 
 module.exports = {
 	// 微信支付，获取签名
-	payByWechat: ({ money, openId, userid, ...rest }) => {
+	payByWechat: ({ money, openId, userid, type, ...rest }) => {
 		// money:单位元，微信支付单位是分
 		// openid:用户的openid
 		return new Promise(async (resolve, reject) => {
@@ -32,6 +32,8 @@ module.exports = {
 						userid,
 						// 唯一的支付编号
 						uuid: `${ObjectUtil.getRandomStr(16)}_${new Date().getTime()}`,
+						// 1-报名费用 2-组团费用
+						type,
 						open_id: openId,
 					}),
 					payer: { openid: openId },

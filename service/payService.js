@@ -34,7 +34,7 @@ module.exports = {
 		}
 	},
 
-	// 报名
+	// 报名或者组团支付
 	async paySignup(req, res) {
 		try {
 			// type = 1 报名 type =2 组团
@@ -47,7 +47,7 @@ module.exports = {
 			detail = responseUtil.renderFieldsObj(detail, ['apply_price', 'cluster_price']);
 			const money = Number(type) === 1 ? detail.apply_price : detail.cluster_price;
 			const desc = Number(type) === 1 ? '报名费用' : '组团费用';
-			let result = await wechatUtil.payByWechat({ money, openId, userid: userId, description: desc });
+			let result = await wechatUtil.payByWechat({ money, openId, userid: userId, type, description: desc });
 			result = {
 				timeStamp: parseInt(`${+new Date() / 1000}`, 10).toString(),
 				packageSign: result.package,
@@ -103,6 +103,63 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			return res.send(resultMessage.error('网络出小差了, 请稍后重试'));
+		}
+	},
+
+	testSign: async (req, res) => {
+		try {
+			// uuid: attach.uuid,
+			// 	user_id: attach.userid,
+			// 	open_id: result.payer.openid,
+			// 	out_trade_no: result.out_trade_no,
+			// 	transaction_id: result.transaction_id,
+			// 	trade_type: result.trade_type,
+			// 	trade_state: result.trade_state,
+			// 	money: 1,
+			// 	success_time: moment(result.success_time).format(timeformat),
+			// 	create_time: moment().format(timeformat),
+			const attach = {
+				uuid: 'sjfkdskffdsfds',
+				user_id: 1,
+				open_id: 'fdsfs',
+				out_trade_no: 'gfdgfdgfd',
+				transaction_id: 'gfidjgdidf',
+				trade_type: 'iwrjkdf',
+				trade_state: 'success',
+				money: 1,
+				success_time: moment().format(timeformat),
+				create_time: moment().format(timeformat),
+			};
+			const result = attach;
+			const payRecord = await payModal.findOne({
+				where: {
+					uuid: attach.uuid,
+					user_id: attach.userid,
+					opend_id: result.openid,
+					out_trade_no: attach.out_trade_no,
+					transaction_id: attach.transaction_id,
+				},
+			});
+			// 如果存在该条记录
+			if (payRecord) return;
+			// 创建支付记录
+			await payModal.create({
+				uuid: attach.uuid,
+				user_id: attach.userid,
+				open_id: result.openid,
+				out_trade_no: result.out_trade_no,
+				transaction_id: result.transaction_id,
+				trade_type: result.trade_type,
+				trade_state: result.trade_state,
+				money: 1,
+				success_time: moment(result.success_time).format(timeformat),
+				create_time: moment().format(timeformat),
+			});
+			// 创建订单信息
+			res.send(resultMessage.success('成功了'));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
 		}
 	},
 };

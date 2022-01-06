@@ -1,5 +1,6 @@
 var Sequelize = require("sequelize").Sequelize;
 var _detail = require("./detail");
+var _order = require("./order");
 var _pay = require("./pay");
 var _project = require("./project");
 var _subject = require("./subject");
@@ -10,6 +11,7 @@ var _user = require("./user");
 
 function initModels(sequelize) {
   var detail = _detail(sequelize, Sequelize);
+  var order = _order(sequelize, Sequelize);
   var pay = _pay(sequelize, Sequelize);
   var project = _project(sequelize, Sequelize);
   var subject = _subject(sequelize, Sequelize);
@@ -21,6 +23,7 @@ function initModels(sequelize) {
 
   return {
     detail,
+    order,
     pay,
     project,
     subject,
