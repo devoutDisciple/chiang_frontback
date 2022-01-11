@@ -6,6 +6,7 @@ var _project = require("./project");
 var _subject = require("./subject");
 var _swiper = require("./swiper");
 var _teacher = require("./teacher");
+var _team = require("./team");
 var _type = require("./type");
 var _user = require("./user");
 
@@ -17,6 +18,7 @@ function initModels(sequelize) {
   var subject = _subject(sequelize, Sequelize);
   var swiper = _swiper(sequelize, Sequelize);
   var teacher = _teacher(sequelize, Sequelize);
+  var team = _team(sequelize, Sequelize);
   var type = _type(sequelize, Sequelize);
   var user = _user(sequelize, Sequelize);
 
@@ -29,6 +31,7 @@ function initModels(sequelize) {
     subject,
     swiper,
     teacher,
+    team,
     type,
     user,
   };

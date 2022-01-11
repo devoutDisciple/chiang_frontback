@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
     },
     sub_id: {
       type: Sequelize.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     type: {
       type: Sequelize.INTEGER,

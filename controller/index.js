@@ -6,6 +6,8 @@ const swiperController = require('./swiperController');
 const typeController = require('./typeController');
 const projectController = require('./projectController');
 const subjectController = require('./subjectController');
+const orderController = require('./orderController');
+const teamController = require('./teamController');
 
 const router = (app) => {
 	// 登录相关
@@ -24,5 +26,9 @@ const router = (app) => {
 	app.use('/project', projectController);
 	// 课程相关
 	app.use('/subject', subjectController);
+	// 订单相关
+	app.use('/order', orderController);
+	// 组团相关
+	app.use('/team', teamController);
 };
 module.exports = router;

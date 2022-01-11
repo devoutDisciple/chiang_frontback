@@ -15,29 +15,32 @@ const pay = new WxPay({
 
 module.exports = {
 	// 微信支付，获取签名
-	payByWechat: ({ money, openId, userid, type, ...rest }) => {
+	payByWechat: ({ money, openId, userid, type, subject_id, project_id, teamUuid, description }) => {
 		// money:单位元，微信支付单位是分
 		// openid:用户的openid
 		return new Promise(async (resolve, reject) => {
 			try {
+				// 附加数据
+				const attach = {
+					userid,
+					// 1-报名费用 2-组团费用
+					type,
+					subId: subject_id,
+					proId: project_id,
+				};
+				// 组团的唯一标识
+				if (type === 2) attach.tid = teamUuid;
 				const params = {
 					// 订单编号
-					out_trade_no: ObjectUtil.getRandomStr(32),
+					out_trade_no: `${ObjectUtil.getRandomStr(12)}${new Date().getTime()}`,
 					notify_url: config.wechat_pay_notify_url,
 					amount: {
 						total: Number((money * 100).toFixed(0)), // 单位分
 						currency: 'CNY',
 					},
-					attach: JSON.stringify({
-						userid,
-						// 唯一的支付编号
-						uuid: `${ObjectUtil.getRandomStr(16)}_${new Date().getTime()}`,
-						// 1-报名费用 2-组团费用
-						type,
-						open_id: openId,
-					}),
+					attach: JSON.stringify(attach),
 					payer: { openid: openId },
-					...rest,
+					description,
 				};
 				const result = await pay.transactions_jsapi(params);
 				console.log(result, 222);
@@ -140,6 +143,7 @@ module.exports = {
 					body.resource.nonce,
 					config.wx_apiv3_secret,
 				);
+				console.log('解析的支付报文：', result);
 				resolve(result);
 			} catch (error) {
 				reject(error);

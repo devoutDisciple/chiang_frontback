@@ -8,11 +8,6 @@ module.exports = (sequelize) => {
       allowNull: false,
       primaryKey: true
     },
-    uuid: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-      comment: "唯一标识id"
-    },
     user_id: {
       type: Sequelize.STRING(255),
       allowNull: false

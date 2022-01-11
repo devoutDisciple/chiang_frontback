@@ -1,37 +1,17 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize) => {
-  return sequelize.define('order', {
+  return sequelize.define('team', {
     id: {
       autoIncrement: true,
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    user_id: {
+    uuid: {
       type: Sequelize.STRING(255),
       allowNull: true,
-      comment: "用户id"
-    },
-    open_id: {
-      type: Sequelize.STRING(255),
-      allowNull: true
-    },
-    team_uuid: {
-      type: Sequelize.STRING(255),
-      allowNull: true,
-      comment: "拼团的uuid"
-    },
-    out_trade_no: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-      primaryKey: true,
-      comment: "内部订单号"
-    },
-    transaction_id: {
-      type: Sequelize.STRING(255),
-      allowNull: true,
-      comment: "微信支付单号"
+      comment: "拼团的唯一标识"
     },
     subject_id: {
       type: Sequelize.INTEGER,
@@ -41,31 +21,50 @@ module.exports = (sequelize) => {
     project_id: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      comment: "班级id"
+      comment: "项目id"
     },
-    pay_state: {
+    order_ids: {
       type: Sequelize.STRING(255),
       allowNull: true,
-      comment: "1-已支付 2-已退款 其他"
+      defaultValue: "[]",
+      comment: "对应的订单ids"
     },
-    type: {
+    user_ids: {
+      type: Sequelize.STRING(255),
+      allowNull: true,
+      defaultValue: "[]",
+      comment: "报名的用户ids"
+    },
+    is_starter: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      comment: "1-报名 2-组团"
+      comment: "1-是 2-不是"
     },
-    create_time: {
-      type: Sequelize.DATE,
-      allowNull: true
+    num: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: "已报名人员人数"
     },
-    is_delete: {
+    state: {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 1,
-      comment: "1-存在 2-删除"
+      comment: "拼团状态 1-未开始 2-进行中 3-拼团成功 4-拼团失败 5-拼团结束"
+    },
+    create_time: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      comment: "创建时间"
+    },
+    end_time: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      comment: "结束时间"
     }
   }, {
     sequelize,
-    tableName: 'order',
+    tableName: 'team',
     timestamps: false,
     indexes: [
       {
@@ -74,7 +73,6 @@ module.exports = (sequelize) => {
         using: "BTREE",
         fields: [
           { name: "id" },
-          { name: "out_trade_no" },
         ]
       },
     ]
