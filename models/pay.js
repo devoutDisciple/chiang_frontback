@@ -22,6 +22,12 @@ module.exports = (sequelize) => {
       defaultValue: 1,
       comment: "1-报名费用 2-组团费用"
     },
+    pay_type: {
+      type: Sequelize.STRING(255),
+      allowNull: false,
+      defaultValue: "1",
+      comment: "1-付款 2-退款 3-其他"
+    },
     out_trade_no: {
       type: Sequelize.STRING(255),
       allowNull: false,
@@ -31,11 +37,6 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING(255),
       allowNull: false,
       comment: "微信支付订单号"
-    },
-    trade_type: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-      comment: "交易类型"
     },
     trade_state: {
       type: Sequelize.STRING(255),

@@ -15,7 +15,7 @@ const pay = new WxPay({
 
 module.exports = {
 	// 微信支付，获取签名
-	payByWechat: ({ money, openId, userid, type, subject_id, project_id, teamUuid, description }) => {
+	wechatPay: ({ money, openId, userid, type, subject_id, project_id, teamUuid, description }) => {
 		// money:单位元，微信支付单位是分
 		// openid:用户的openid
 		return new Promise(async (resolve, reject) => {
@@ -93,7 +93,7 @@ module.exports = {
 	},
 
 	// 解密回调数据
-	getNotifyMsg: (body) => {
+	getPayNotifyMsg: (body) => {
 		// 返回的数据
 		// {
 		// 	id: '32d57372-3153-59cf-a59e-df9f831316b6',
@@ -113,25 +113,111 @@ module.exports = {
 
 		// 解密后的数据
 		// {
-		// 	mchid: '1618427379',
-		// 	appid: 'wx768242fa111870e0',
-		// 商户系统内部订单号
-		// 	out_trade_no: 'V5B65AN1B8WIUEUHBBBMNP3TT4IVXAH6',
-		// 微信支付订单号
-		// 	transaction_id: '4200001307202201041047839633',
-		// 交易类型交易类型，枚举值： JSAPI：公众号支付 NATIVE：扫码支付 APP：APP支付 MICROPAY：付款码支付 MWEB：H5支付 FACEPAY：刷脸支付
-		// 	trade_type: 'JSAPI',
-		// 交易状态，枚举值： SUCCESS：支付成功 ,REFUND：转入退款 ,NOTPAY：未支付 ,CLOSED：已关闭 ,REVOKED：已撤销（付款码支付） ,USERPAYING：用户支付中（付款码支付） ,PAYERROR：支付失败(其他原因，如银行返回失败)
-		// 	trade_state: 'SUCCESS',
-		// 	trade_state_desc: '支付成功',
-		// 付款银行
-		// 	bank_type: 'OTHERS',
-		// 附加数据 附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用，实际情况下只有支付完成状态才会返回该字段。
-		// 	attach: '',
-		// 	success_time: '2022-01-04T21:44:00+08:00',
-		// 	payer: { openid: 'odZ0M5iAUE3HxagunKf7kA7qbBBQ' },
-		// 	amount: { total: 1, payer_total: 1, currency: 'CNY', payer_currency: 'CNY' },
-		// };
+		//     mchid: '1618427379',
+		//     out_trade_no: 'MAJ2EKE6VK071641915233738',
+		//     transaction_id: '4200001344202201110769792875',
+		//     out_refund_no: 'fdf943jjfdsgjoi9e',
+		//     refund_id: '50302000552022011316424495695',
+		//     refund_status: 'SUCCESS',
+		//     success_time: '2022-01-13T21:45:25+08:00',
+		//     amount: { total: 2, refund: 1, payer_total: 2, payer_refund: 1 },
+		//     user_received_account: '支付用户零钱'
+		//   }
+		return new Promise(async (resolve, reject) => {
+			try {
+				if (!body || !body.resource || !body.resource.ciphertext) {
+					reject({});
+				}
+				const result = pay.decipher_gcm(
+					body.resource.ciphertext,
+					body.resource.associated_data,
+					body.resource.nonce,
+					config.wx_apiv3_secret,
+				);
+				console.log('解析的支付报文：', result);
+				resolve(result);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	},
+
+	// 发起退款
+	payRefunds: ({ transaction_id, out_refund_no, refund, total }) => {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const params = {
+					transaction_id, // 微信订单号
+					out_refund_no, // 退款单号
+					notify_url: config.wechat_refund_notify_url, // 通知地址
+					amount: {
+						refund, // 退款金额
+						total, // 原来总金额
+						currency: 'CNY', // 退款币种
+					},
+				};
+				const result = await pay.refunds(params);
+				console.log(result, 111);
+				// {
+				//   status: 'PROCESSING', // SUCCESS：退款成功 CLOSED：退款关闭 PROCESSING：退款处理中 ABNORMAL：退款异常
+				//   amount: {
+				//     currency: 'CNY',
+				//     discount_refund: 0,
+				//     from: [],
+				//     payer_refund: 1,
+				//     payer_total: 2,
+				//     refund: 1,
+				//     settlement_refund: 1,
+				//     settlement_total: 2,
+				//     total: 2
+				//   },
+				//   channel: 'ORIGINAL',
+				//   create_time: '2022-01-12T21:24:33+08:00',
+				//   funds_account: 'AVAILABLE',
+				//   out_refund_no: 'hjkdsiuwnnj43yejdf8349',
+				//   out_trade_no: 'MAJ2EKE6VK071641915233738',
+				//   promotion_detail: [],
+				//   refund_id: '50302000552022011216389088151',
+				//   transaction_id: '4200001344202201110769792875',
+				//   user_received_account: '支付用户零钱'
+				// }
+				resolve(result);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	},
+
+	// 处理退款的回调
+	getRefundsNotifyMsg: (body) => {
+		// 返回的数据
+		// {
+		//   id: 'ec7254e9-b4df-599d-9293-8d10328f35e4',
+		//   create_time: '2022-01-13T21:45:25+08:00',
+		//   resource_type: 'encrypt-resource',
+		//   event_type: 'REFUND.SUCCESS',
+		//   summary: '退款成功',
+		//   resource: {
+		//     original_type: 'refund',
+		//     algorithm: 'AEAD_AES_256_GCM',
+		//     ciphertext: 'e8aw0+bPZi7v1I51c8GZbXoB/M+xafDwU966a5cPCJLETK0SB5zufvTKRuEjQ66h1suWzX3M0FDS9XZ0uSiiSK9jqbWHiH8mlpzLqu/tHHs94c4Fb6WxJ9HAb4rhEuYpXpKpJKR2GnVtBwhPs8C5ICNasCuxXfBnvk2fR2KR/R9m/Kl6dDaHLtfLlsLm31xb5CXK9qryoFzT7lmreKBOesczEqcqbh++CPA5aIrNB44sQQwc0NHMupesBLdh8LS52d7bAZp636kP2CPw9/ePjso4hrMuSQ28rqKvd6oc4ZkeJa6EcXn8nZASMeKhb85olqz3g1MAeMWlu0zmhRJ9sXmJbfT3OR0COzFoykL2isQVmApG2AtNhQ4Q89pIEyaqhziPie3GbHaJBOTwUP9Pa+u1IqHfT1b1l3wxowgT1yK3TkKWvBUhEJjAByAqwCCvtE2i+MXhQ4ZWi3B8rGhlmc7fpAIDopCOBIetNu7J6b+W3Fod6yjSdSauHJhxUlRe1G2f+Q==',
+		//     associated_data: 'refund',
+		//     nonce: '8jYNLS2ynxAx'
+		//   }
+		// }
+
+		// 解密后的数据
+		// {
+		//     mchid: '1618427379',
+		//     out_trade_no: 'MAJ2EKE6VK071641915233738',
+		//     transaction_id: '4200001344202201110769792875',
+		//     out_refund_no: 'fdf943jjfdsgjoi9e',
+		//     refund_id: '50302000552022011316424495695',
+		//     refund_status: 'SUCCESS',
+		//     success_time: '2022-01-13T21:45:25+08:00',
+		//     amount: { total: 2, refund: 1, payer_total: 2, payer_refund: 1 },
+		//     user_received_account: '支付用户零钱'
+		//   }
 		return new Promise(async (resolve, reject) => {
 			try {
 				if (!body || !body.resource || !body.resource.ciphertext) {

@@ -14,8 +14,18 @@ router.post('/paySignup', (req, res) => {
 });
 
 // 处理微信支付返回接口
-router.post('/handleWechat', (req, res) => {
-	payService.handleWechat(req, res);
+router.post('/handleWechatPay', (req, res) => {
+	payService.handleWechatPay(req, res);
+});
+
+// 请求微信退款
+router.post('/refunds', (req, res) => {
+	payService.payRefunds(req, res);
+});
+
+// 处理微信支付返回接口
+router.post('/handleWechatRefunds', (req, res) => {
+	payService.handleWechatRefunds(req, res);
 });
 
 module.exports = router;

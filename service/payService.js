@@ -23,7 +23,7 @@ module.exports = {
 		try {
 			const { openId } = req.query;
 			if (!openId) return res.send(resultMessage.error('系统错误'));
-			let result = await wechatUtil.payByWechat({ money: 0.01, openId, description: '测试' });
+			let result = await wechatUtil.wechatPay({ money: 0.01, openId, description: '测试' });
 			result = {
 				timeStamp: parseInt(`${+new Date() / 1000}`, 10).toString(),
 				packageSign: result.package,
@@ -86,7 +86,7 @@ module.exports = {
 			detail = responseUtil.renderFieldsObj(detail, ['apply_price', 'cluster_price']);
 			const money = Number(type) === 1 ? detail.apply_price : detail.cluster_price;
 			const desc = Number(type) === 1 ? '报名费用' : '组团费用';
-			let result = await wechatUtil.payByWechat({
+			let result = await wechatUtil.wechatPay({
 				money,
 				openId,
 				userid: userId,
@@ -112,14 +112,14 @@ module.exports = {
 		}
 	},
 
-	// 处理微信支付回调
-	handleWechat: async (req, res) => {
+	// 处理微信付款回调
+	handleWechatPay: async (req, res) => {
 		try {
 			const body = req.body;
 			if (!body || !body.resource || !body.resource.ciphertext) {
 				return {};
 			}
-			const result = await wechatUtil.getNotifyMsg(body);
+			const result = await wechatUtil.getPayNotifyMsg(body);
 			if (!result.out_trade_no || !result.transaction_id) {
 				return res.send(resultMessage.error('系统错误'));
 			}
@@ -168,15 +168,12 @@ module.exports = {
 				open_id: result.payer.openid,
 				out_trade_no: result.out_trade_no,
 				transaction_id: result.transaction_id,
-				trade_type: result.trade_type,
 				trade_state: result.trade_state,
 				type: result.attach.type,
 				money: result.amount.payer_total,
 				success_time: moment(result.success_time).format(timeformat),
 				create_time: moment().format(timeformat),
 			});
-			console.log(111);
-
 			// 创建订单
 			const orderParams = {
 				user_id: result.attach.userid,
@@ -232,12 +229,91 @@ module.exports = {
 					{ where: { id: result.attach.tid } },
 				);
 			}
-			console.log(4444);
-
 			res.send(resultMessage.success('success'));
 		} catch (error) {
 			console.log(error);
 			return res.send(resultMessage.error('网络出小差了, 请稍后重试'));
+		}
+	},
+
+	// 微信退款
+	payRefunds: async (req, res) => {
+		try {
+			const { body } = req;
+			const result = await wechatUtil.payRefunds(body);
+			console.log('退款返回信息： ', result);
+			res.send(resultMessage.success('success'));
+		} catch (error) {
+			console.log(error);
+			return res.send(resultMessage.error('网络出小差了, 请稍后重试'));
+		}
+	},
+
+	// 处理微信退款通知
+	handleWechatRefunds: async (req, res) => {
+		try {
+			const body = req.body;
+			if (!body || !body.resource || !body.resource.ciphertext) {
+				return {};
+			}
+			// {
+			//     mchid: '1618427379',
+			//     out_trade_no: 'MAJ2EKE6VK071641915233738', // 原支付交易对应的商户订单号
+			//     transaction_id: '4200001344202201110769792875',//微信支付交易订单号
+			//     out_refund_no: 'fdf943jjfdsgjoi9e',//商户系统内部的退款单号
+			//     refund_id: '50302000552022011316424495695',//微信支付退款单号
+			//     refund_status: 'SUCCESS',
+			//     success_time: '2022-01-13T21:45:25+08:00',
+			//     amount: { total: 2, refund: 1, payer_total: 2, payer_refund: 1 },
+			//     user_received_account: '支付用户零钱'
+			//   }
+			const result = await wechatUtil.getRefundsNotifyMsg(body);
+			if (result.refund_status !== 'SUCCESS') return;
+
+			const orderDetail = await orderModal.findOne({
+				where: {
+					out_trade_no: result.out_trade_no,
+					transaction_id: result.transaction_id,
+				},
+			});
+			// 改变订单状态为退款
+			await orderModal.update(
+				{ pay_state: 2 },
+				{
+					where: {
+						out_trade_no: result.out_trade_no,
+						transaction_id: result.transaction_id,
+					},
+				},
+			);
+			// 如果是拼团，改变拼团的状态
+			if (Number(orderDetail.type) === 2) {
+				await teamModal.update(
+					{ state: 6 },
+					{
+						where: {
+							uuid: orderDetail.team_uuid,
+						},
+					},
+				);
+			}
+			// 创建退款支付信息
+			await payModal.create({
+				user_id: orderDetail.user_id,
+				open_id: orderDetail.open_id,
+				type: orderDetail.type,
+				pay_type: 2, // 退款
+				out_trade_no: result.out_refund_no,
+				transaction_id: result.transaction_id,
+				trade_state: result.refund_status,
+				money: result.amount.refund,
+				success_time: moment(result.success_time).format(timeformat),
+				create_time: moment(result.success_time).format(timeformat),
+			});
+			res.send(resultMessage.success('success'));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
 		}
 	},
 
@@ -259,7 +335,6 @@ module.exports = {
 				open_id: 'fdsfs',
 				out_trade_no: 'gfdgfdgfd',
 				transaction_id: 'gfidjgdidf',
-				trade_type: 'iwrjkdf',
 				trade_state: 'success',
 				money: 1,
 				success_time: moment().format(timeformat),
@@ -282,7 +357,6 @@ module.exports = {
 				open_id: result.openid,
 				out_trade_no: result.out_trade_no,
 				transaction_id: result.transaction_id,
-				trade_type: result.trade_type,
 				trade_state: result.trade_state,
 				money: 1,
 				success_time: moment(result.success_time).format(timeformat),
