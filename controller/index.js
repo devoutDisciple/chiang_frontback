@@ -8,6 +8,7 @@ const projectController = require('./projectController');
 const subjectController = require('./subjectController');
 const orderController = require('./orderController');
 const teamController = require('./teamController');
+const userController = require('./userController');
 
 const router = (app) => {
 	// 登录相关
@@ -30,5 +31,7 @@ const router = (app) => {
 	app.use('/order', orderController);
 	// 组团相关
 	app.use('/team', teamController);
+	// 用户相关
+	app.use('/user', userController);
 };
 module.exports = router;
