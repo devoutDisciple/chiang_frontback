@@ -10,6 +10,8 @@ const orderModal = order(sequelize);
 const teamModal = team(sequelize);
 const Op = Sequelize.Op;
 
+const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+
 // 查看所有拼团，每小时的1分执行
 schedule.scheduleJob('* 1 * * * *', async () => {
 	const hours73Ago = moment().subtract(73, 'hours');
@@ -28,6 +30,7 @@ schedule.scheduleJob('* 1 * * * *', async () => {
 		if (moment(new Date()).diff(moment(item.end_time), 'minute') > 72 * 60) {
 			// 将状态刚更新为拼团超时而失败
 			await teamModal.update({ state: 4 }, { where: { id: item.id } });
+			console.log(`更新拼团状态: 拼团id: ${item.id}, 更新状态为：拼团超时而失败`);
 		}
 	});
 });
@@ -55,6 +58,7 @@ schedule.scheduleJob('* * 8 * * *', async () => {
 		if (orderDetails && orderDetails.length !== 0) {
 			orderDetails.map(async (orderDetail) => {
 				wechatUtil.payRefunds(orderDetail);
+				console.log(`发起退款: 退款的订单id: ${orderDetail.id}, 退款时间： ${moment().format(timeFormat)}`);
 			});
 		}
 	});

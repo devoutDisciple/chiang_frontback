@@ -8,4 +8,9 @@ router.get('/orderDetailByUserid', (req, res) => {
 	orderService.getOrderDetailByUserid(req, res);
 });
 
+// 根据用户id获取所有报名课程
+router.get('/allOrderByUserid', (req, res) => {
+	orderService.getAllOrderByUserid(req, res);
+});
+
 module.exports = router;

@@ -47,15 +47,6 @@ module.exports = {
 			let { type } = req.body;
 			type = Number(type);
 			if (!openId || !subject_id) return res.send(resultMessage.error('系统错误'));
-			// 查看用户是否已报名该课程
-			// if (Number(type) === 1) {
-			// 	const orderDetail = await orderModal.findOne({
-			// 		where: { user_id: userId, subject_id, project_id, type },
-			// 	});
-			// 	if (orderDetail) {
-			// 		return res.send(resultMessage.error('您已完成报名'));
-			// 	}
-			// }
 			let teamUuid = `${ObjectUtil.getRandomStr(12)}${parseInt(`${+new Date() / 1000}`, 10).toString()}`;
 			// 查看用户是否已组团该课程
 			if (Number(type) === 2) {
@@ -102,9 +93,8 @@ module.exports = {
 				paySign: result.paySign,
 				nonceStr: result.nonceStr,
 				appId: config.wx_appid,
-				signType: 'RSA',
 			};
-			if (type === 2) result.teamUuid = teamUuid;
+			if (type === 2) result.team_uuid = teamUuid;
 			res.send(resultMessage.success(result));
 		} catch (error) {
 			console.log(error);
@@ -219,15 +209,14 @@ module.exports = {
 				if (!order_ids.includes(result.attach.userid)) {
 					order_ids.push(result.attach.userid);
 				}
-				// 创建拼团的订单
-				await teamModal.update(
-					{
-						num: Number(teamDetail.num) + 1,
-						user_ids: JSON.stringify(user_ids),
-						order_ids: JSON.stringify(order_ids),
-					},
-					{ where: { id: result.attach.tid } },
-				);
+				const conditions = {
+					num: Number(teamDetail.num) + 1,
+					user_ids: JSON.stringify(user_ids),
+					order_ids: JSON.stringify(order_ids),
+				};
+				if (conditions.num === 3) conditions.state = 3;
+				// 更新拼团订单
+				await teamModal.update(conditions, { where: { id: result.attach.tid } });
 			}
 			res.send(resultMessage.success('success'));
 		} catch (error) {

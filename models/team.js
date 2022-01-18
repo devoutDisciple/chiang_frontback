@@ -50,7 +50,7 @@ module.exports = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 1,
-      comment: "拼团状态 1-未开始 2-进行中 3-拼团成功 4-拼团失败 5-拼团结束 6-已退款"
+      comment: "拼团状态 1-未开始 2-进行中 3-拼团成功 4-拼团超时失败 5-拼团人数不够失败 6-拼团失败已退款"
     },
     create_time: {
       type: Sequelize.DATE,
@@ -61,6 +61,12 @@ module.exports = (sequelize) => {
       type: Sequelize.DATE,
       allowNull: true,
       comment: "结束时间"
+    },
+    is_delete: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 1,
+      comment: "1-存在 2-删除"
     }
   }, {
     sequelize,

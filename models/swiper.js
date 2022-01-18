@@ -12,13 +12,18 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING(255),
       allowNull: false
     },
+    sort: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     create_time: {
       type: Sequelize.DATE,
-      allowNull: false
+      allowNull: true
     },
     is_delete: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 1,
       comment: "1-存在 2-删除"
     }

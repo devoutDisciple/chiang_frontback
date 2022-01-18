@@ -25,12 +25,12 @@ module.exports = (sequelize) => {
     },
     start_time: {
       type: Sequelize.DATE,
-      allowNull: false,
+      allowNull: true,
       comment: "开始时间"
     },
     end_time: {
       type: Sequelize.DATE,
-      allowNull: false,
+      allowNull: true,
       comment: "结束时间"
     },
     teacher_ids: {
@@ -91,6 +91,10 @@ module.exports = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 1
+    },
+    create_time: {
+      type: Sequelize.DATE,
+      allowNull: true
     },
     is_delete: {
       type: Sequelize.INTEGER,
