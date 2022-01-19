@@ -13,4 +13,9 @@ router.get('/subjectDetailById', (req, res) => {
 	subjectService.getSubjectDetailById(req, res);
 });
 
+// 根据关键词搜索
+router.get('/allSubjectByKeywords', (req, res) => {
+	subjectService.getAllSubjectByKeywords(req, res);
+});
+
 module.exports = router;

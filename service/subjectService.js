@@ -1,3 +1,4 @@
+const Sequelize = require('sequelize');
 const moment = require('moment');
 const resultMessage = require('../util/resultMessage');
 const sequelize = require('../dataSource/MysqlPoolClass');
@@ -7,6 +8,7 @@ const subDetail = require('../models/detail');
 const responseUtil = require('../util/responseUtil');
 const config = require('../config/config');
 
+const Op = Sequelize.Op;
 const subjectModal = subject(sequelize);
 const teacherModal = teacher(sequelize);
 const subDetailModal = subDetail(sequelize);
@@ -123,6 +125,51 @@ module.exports = {
 				signupUrls,
 			};
 			res.send(resultMessage.success(detail));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 根据关键词搜索
+	getAllSubjectByKeywords: async (req, res) => {
+		try {
+			const { keywords } = req.query;
+			const commonFields = ['id', 'project_id', 'title', 'start_time', 'end_time', 'price', 'teacher_ids', 'create_time'];
+			let subjectLists = await subjectModal.findAll({
+				where: {
+					title: {
+						[Op.like]: `%${keywords}%`,
+					},
+				},
+				attributes: commonFields,
+				order: [['create_time', 'DESC']],
+			});
+			subjectLists = responseUtil.renderFieldsAll(subjectLists, commonFields);
+			const result = [];
+			if (subjectLists && subjectLists.length !== 0) {
+				let len = subjectLists.length;
+				while (len > 0) {
+					len -= 1;
+					const subjectDetail = subjectLists[len];
+					const teacher_ids = JSON.parse(subjectDetail.teacher_ids);
+					const teacherFields = ['id', 'name', 'photo'];
+					let teachers = await teacherModal.findAll({
+						where: { id: teacher_ids, is_delete: 1 },
+						attributes: teacherFields,
+					});
+					teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
+					teachers.forEach((item) => {
+						item.photo = config.preUrl.photoUrl + item.photo;
+					});
+					subjectDetail.teacher_detail = teachers;
+					subjectDetail.start_time = moment(subjectDetail.start_time).format(timeformat);
+					subjectDetail.end_time = moment(subjectDetail.end_time).format(timeformat);
+					subjectDetail.create_time = moment(subjectDetail.create_time).format(timeformat);
+					result.push(subjectLists[len]);
+				}
+			}
+			res.send(resultMessage.success(subjectLists));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());
