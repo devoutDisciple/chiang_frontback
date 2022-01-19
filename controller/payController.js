@@ -28,4 +28,9 @@ router.post('/handleWechatRefunds', (req, res) => {
 	payService.handleWechatRefunds(req, res);
 });
 
+// 获取用户支付记录
+router.get('/allPayByUserId', (req, res) => {
+	payService.getAllPayByUserId(req, res);
+});
+
 module.exports = router;

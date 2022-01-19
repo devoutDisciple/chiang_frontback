@@ -358,4 +358,28 @@ module.exports = {
 			res.send(resultMessage.error());
 		}
 	},
+
+	// 获取用户的支付记录
+	getAllPayByUserId: async (req, res) => {
+		try {
+			const { userId } = req.query;
+			if (!userId) return res.send(resultMessage.success([]));
+			const commonFields = ['id', 'pay_type', 'out_trade_no', 'money', 'success_time'];
+			const payRecords = await payModal.findAll({
+				where: { user_id: userId, is_delete: 1 },
+				attributes: commonFields,
+			});
+			const result = responseUtil.renderFieldsAll(payRecords, commonFields);
+			result.forEach((item) => {
+				item.success_time = moment(item.success_time).format('YYYY-MM-DD HH:mm:ss');
+				item.money = Number(Number(item.money) / 100).toFixed(2);
+				item.pay_type = Number(item.pay_type);
+			});
+			// 创建订单信息
+			res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
 };
