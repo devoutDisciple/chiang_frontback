@@ -43,7 +43,6 @@ module.exports = {
 					description,
 				};
 				const result = await pay.transactions_jsapi(params);
-				console.log(result, 222);
 				resolve(result);
 			} catch (error) {
 				reject(error);
@@ -134,7 +133,6 @@ module.exports = {
 					body.resource.nonce,
 					config.wx_apiv3_secret,
 				);
-				console.log('解析的支付报文：', result);
 				resolve(result);
 			} catch (error) {
 				reject(error);
@@ -157,7 +155,6 @@ module.exports = {
 					},
 				};
 				const result = await pay.refunds(params);
-				console.log(result, 111);
 				// {
 				//   status: 'PROCESSING', // SUCCESS：退款成功 CLOSED：退款关闭 PROCESSING：退款处理中 ABNORMAL：退款异常
 				//   amount: {
@@ -229,7 +226,6 @@ module.exports = {
 					body.resource.nonce,
 					config.wx_apiv3_secret,
 				);
-				console.log('解析的支付报文：', result);
 				resolve(result);
 			} catch (error) {
 				reject(error);

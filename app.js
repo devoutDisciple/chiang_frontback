@@ -9,12 +9,13 @@ const cookieParser = require('cookie-parser');
 const sessionParser = require('express-session');
 const config = require('./config/config');
 const controller = require('./controller/index');
+const ChangeLog = require('./middleware/ChangeLog');
 const LogMiddleware = require('./middleware/LogMiddleware');
-// require('./schedule');
+require('./schedule');
 
 // 开启ssl证书
-const privateKey = fs.readFileSync(path.join(__dirname, './ssl/5784044_r0jd8.cn.key'), 'utf8');
-const certificate = fs.readFileSync(path.join(__dirname, './ssl/5784044_r0jd8.cn.pem'), 'utf8');
+const privateKey = fs.readFileSync(path.join(__dirname, './ssl/7158614_chiangky.com.key'), 'utf8');
+const certificate = fs.readFileSync(path.join(__dirname, './ssl/7158614_chiangky.com.pem'), 'utf8');
 
 const credentials = {
 	// pfx: pfx, ,
@@ -46,13 +47,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // 改变默认的log
-// ChangeLog.changeLog();
+ChangeLog.changeLog();
 
-// // 改变默认的info
-// ChangeLog.changeInfo();
+// 改变默认的info
+ChangeLog.changeInfo();
 
-// // 改变默认的error
-// ChangeLog.changeError();
+// 改变默认的error
+ChangeLog.changeError();
 
 // 自定义日志
 app.use(LogMiddleware);
@@ -76,9 +77,9 @@ if (config.env !== 'dev') {
 	httpsServer.listen(443, () => {
 		console.log(chalk.yellow(`env: ${config.env}, server is listenning 443`));
 	});
+} else {
+	// 监听8888端口
+	app.listen(config.port, () => {
+		console.log(chalk.yellow(`env: ${config.env}, server is listenning ${config.port}`));
+	});
 }
-
-// 监听8888端口
-app.listen(config.port, () => {
-	console.log(chalk.yellow(`env: ${config.env}, server is listenning ${config.port}`));
-});

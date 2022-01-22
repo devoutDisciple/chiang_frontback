@@ -57,7 +57,6 @@ module.exports = {
 				where: { user_id: userid, is_delete: 1 },
 			});
 			const orderList = responseUtil.renderFieldsAll(data, ['id', 'team_uuid', 'subject_id', 'pay_state', 'type']);
-			// console.log(result, 83298);
 			// result.map(async (item) => {
 			// 	let subjectDetail = await subjectModal.findOne({ where: { id: item.subject_id } });
 			// 	subjectDetail = responseUtil.renderFieldsObj(subjectDetail, [
