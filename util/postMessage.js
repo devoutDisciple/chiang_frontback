@@ -6,7 +6,7 @@ const requestOption = {
 };
 
 const client = new Core({
-	accessKeyId: config.message_accessKeySecret,
+	accessKeyId: config.message_accessKeyId,
 	accessKeySecret: config.message_accessKeySecret,
 	endpoint: config.message_endpoint,
 	apiVersion: config.message_apiVersion,
@@ -15,21 +15,92 @@ const client = new Core({
 const RegionId = 'cn-hangzhou';
 
 module.exports = {
-	// 发送验证信息
-	postLoginMessage: (phoneNum, code) => {
+	// 发送参与组团
+	postJoinTeamMsg: (phoneNum, name) => {
 		if (config.send_message_flag === 2) return;
 		const params = {
 			RegionId,
 			PhoneNumbers: phoneNum,
 			SignName: config.notify_message_sign,
-			TemplateCode: config.message_loginyanzhengma,
-			TemplateParam: JSON.stringify({ code }),
+			TemplateCode: config.message_joinTeamCode,
+			TemplateParam: JSON.stringify({ name }),
 		};
 		return new Promise((resolve, reject) => {
 			client.request('SendSms', params, requestOption).then(
 				(result) => {
 					console.log(JSON.stringify(result));
-					resolve({ phoneNum, code });
+					resolve({ phoneNum, name });
+				},
+				(ex) => {
+					reject('发送失败');
+					console.log(ex);
+				},
+			);
+		});
+	},
+
+	// 退款通知
+	postRefundsMsg: (phoneNum, name) => {
+		if (config.send_message_flag === 2) return;
+		const params = {
+			RegionId,
+			PhoneNumbers: phoneNum,
+			SignName: config.notify_message_sign,
+			TemplateCode: config.message_refundsCode,
+			TemplateParam: JSON.stringify({ name }),
+		};
+		return new Promise((resolve, reject) => {
+			client.request('SendSms', params, requestOption).then(
+				(result) => {
+					console.log(JSON.stringify(result));
+					resolve({ phoneNum, name });
+				},
+				(ex) => {
+					reject('发送失败');
+					console.log(ex);
+				},
+			);
+		});
+	},
+
+	// 发送拼团成功
+	postTeamSuccessMsg: (phoneNum, name) => {
+		if (config.send_message_flag === 2) return;
+		const params = {
+			RegionId,
+			PhoneNumbers: phoneNum,
+			SignName: config.notify_message_sign,
+			TemplateCode: config.message_teamSuccessCode,
+		};
+		return new Promise((resolve, reject) => {
+			client.request('SendSms', params, requestOption).then(
+				(result) => {
+					console.log(JSON.stringify(result));
+					resolve({ phoneNum, name });
+				},
+				(ex) => {
+					reject('发送失败');
+					console.log(ex);
+				},
+			);
+		});
+	},
+
+	// 报名成功
+	postSignupSuccessMsg: (phoneNum, name) => {
+		if (config.send_message_flag === 2) return;
+		const params = {
+			RegionId,
+			PhoneNumbers: phoneNum,
+			SignName: config.notify_message_sign,
+			TemplateCode: config.message_signupSuccessCode,
+			TemplateParam: JSON.stringify({ name }),
+		};
+		return new Promise((resolve, reject) => {
+			client.request('SendSms', params, requestOption).then(
+				(result) => {
+					console.log(JSON.stringify(result));
+					resolve({ phoneNum, name });
 				},
 				(ex) => {
 					reject('发送失败');
