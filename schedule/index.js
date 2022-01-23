@@ -14,7 +14,7 @@ const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
 // 查看所有拼团，每小时的1分执行
 schedule.scheduleJob('* 1 * * * *', async () => {
-	const hours73Ago = moment().subtract(73, 'hours');
+	const hours73Ago = moment().subtract(73, 'hours').format('YYYY-MM-DD HH:mm:ss');
 	// 获取最近73小时的组团信息
 	const results = await teamModal.findAll({
 		where: {
@@ -37,7 +37,7 @@ schedule.scheduleJob('* 1 * * * *', async () => {
 
 // 退款，每天的早上八点
 schedule.scheduleJob('* * 8 * * *', async () => {
-	const hours48Ago = moment().subtract(48, 'hours');
+	const hours48Ago = moment().subtract(48, 'hours').format('YYYY-MM-DD HH:mm:ss');
 	// 获取所有拼团失败的信息
 	const results = await teamModal.findAll({
 		where: {

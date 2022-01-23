@@ -8,23 +8,31 @@ module.exports = (sequelize) => {
       allowNull: false,
       primaryKey: true
     },
-    url: {
-      type: Sequelize.STRING(255),
-      allowNull: true
-    },
     sub_id: {
       type: Sequelize.INTEGER,
       allowNull: true
     },
-    type: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      comment: "1-课程详情 2-师资团队 3-报名须知"
+    url: {
+      type: Sequelize.STRING(255),
+      allowNull: true
     },
-    sort: {
-      type: Sequelize.INTEGER,
+    detail_urls: {
+      type: Sequelize.STRING(2000),
       allowNull: true,
-      defaultValue: 1
+      defaultValue: "[]",
+      comment: "课程详情的图片"
+    },
+    teacher_urls: {
+      type: Sequelize.STRING(2000),
+      allowNull: true,
+      defaultValue: "[]",
+      comment: "师资团队的图片"
+    },
+    signup_urls: {
+      type: Sequelize.STRING(2000),
+      allowNull: true,
+      defaultValue: "[]",
+      comment: "报名须知的图片"
     },
     create_time: {
       type: Sequelize.DATE,

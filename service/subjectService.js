@@ -69,7 +69,6 @@ module.exports = {
 				'id',
 				'project_id',
 				'title',
-				'url',
 				'start_time',
 				'end_time',
 				'teacher_ids',
@@ -86,7 +85,6 @@ module.exports = {
 				attributes: commonFields,
 			});
 			detail = responseUtil.renderFieldsObj(detail, commonFields);
-			detail.url = config.preUrl.subjectUrl + detail.url;
 			detail.start_time = moment(detail.start_time).format(timeformat);
 			detail.end_time = moment(detail.end_time).format(timeformat);
 			const teacher_ids = JSON.parse(detail.teacher_ids);
@@ -100,29 +98,17 @@ module.exports = {
 				item.photo = config.preUrl.photoUrl + item.photo;
 			});
 			detail.teacher_detail = teachers;
-			const subDetailFields = ['id', 'url', 'type'];
-			let subAllDetail = await subDetailModal.findAll({
+			const subDetailFields = ['id', 'url', 'detail_urls', 'teacher_urls', 'signup_urls'];
+			let subItemDetail = await subDetailModal.findOne({
 				where: { sub_id: detail.id, is_delete: 1 },
 				attributes: subDetailFields,
-				order: [['sort', 'DESC']],
 			});
-			subAllDetail = responseUtil.renderFieldsAll(subAllDetail, subDetailFields);
-			const subUrls = subAllDetail.filter((item) => item.type === 1);
-			subUrls.forEach((item) => {
-				item.url = config.preUrl.subjectUrl + item.url;
-			});
-			const teachUrls = subAllDetail.filter((item) => item.type === 2);
-			teachUrls.forEach((item) => {
-				item.url = config.preUrl.subjectUrl + item.url;
-			});
-			const signupUrls = subAllDetail.filter((item) => item.type === 3);
-			signupUrls.forEach((item) => {
-				item.url = config.preUrl.subjectUrl + item.url;
-			});
+			subItemDetail = responseUtil.renderFieldsObj(subItemDetail, subDetailFields);
 			detail.detail_urls = {
-				subUrls,
-				teachUrls,
-				signupUrls,
+				url: subItemDetail.url,
+				detailUrls: JSON.parse(subItemDetail.detail_urls),
+				teachUrls: JSON.parse(subItemDetail.teacher_urls),
+				signupUrls: JSON.parse(subItemDetail.signup_urls),
 			};
 			res.send(resultMessage.success(detail));
 		} catch (error) {

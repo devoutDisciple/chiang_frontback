@@ -9,6 +9,7 @@ const subjectController = require('./subjectController');
 const orderController = require('./orderController');
 const teamController = require('./teamController');
 const userController = require('./userController');
+const baomuController = require('./baomuController');
 
 const router = (app) => {
 	// 登录相关
@@ -33,5 +34,7 @@ const router = (app) => {
 	app.use('/team', teamController);
 	// 用户相关
 	app.use('/user', userController);
+	// 鲍姆演绎相关
+	app.use('/baomu', baomuController);
 };
 module.exports = router;

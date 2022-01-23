@@ -4,6 +4,7 @@ const path = require('path');
 const request = require('request');
 const config = require('../config/config');
 const ObjectUtil = require('./ObjectUtil');
+const baomoConfig = require('../config/baomuConfig');
 
 // 使用框架
 const pay = new WxPay({
@@ -79,6 +80,27 @@ module.exports = {
 			try {
 				request.get(
 					`${config.wechat_openid_url}?appid=${config.wx_appid}&secret=${config.wx_appSecret}&js_code=${code}&grant_type=${config.wx_grantType}`,
+					async (error, response, body) => {
+						if (error) reject(error);
+						resolve(JSON.parse(body));
+					},
+				);
+			} catch (error) {
+				console.log(error);
+				reject(error);
+			}
+		});
+	},
+
+	// 获取用户session_key和openid
+	getUserSessionKeyByBaoMu: (code) => {
+		return new Promise((resolve, reject) => {
+			try {
+				const appid = baomoConfig.appid;
+				const secret = baomoConfig.appsecret;
+				const wx_grantType = baomoConfig.wx_grantType;
+				request.get(
+					`${config.wechat_openid_url}?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=${wx_grantType}`,
 					async (error, response, body) => {
 						if (error) reject(error);
 						resolve(JSON.parse(body));
