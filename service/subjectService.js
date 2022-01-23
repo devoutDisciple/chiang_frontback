@@ -6,7 +6,6 @@ const subject = require('../models/subject');
 const teacher = require('../models/teacher');
 const subDetail = require('../models/detail');
 const responseUtil = require('../util/responseUtil');
-const config = require('../config/config');
 
 const Op = Sequelize.Op;
 const subjectModal = subject(sequelize);
@@ -42,9 +41,7 @@ module.exports = {
 				attributes: teacherFields,
 			});
 			teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
-			teachers.forEach((item) => {
-				item.photo = config.preUrl.photoUrl + item.photo;
-			});
+
 			result.forEach(async (item) => {
 				if (item.teacher_ids && item.teacher_ids.length !== 0) {
 					let teacher_detail = [];
@@ -94,9 +91,7 @@ module.exports = {
 				attributes: teacherFields,
 			});
 			teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
-			teachers.forEach((item) => {
-				item.photo = config.preUrl.photoUrl + item.photo;
-			});
+
 			detail.teacher_detail = teachers;
 			const subDetailFields = ['id', 'url', 'detail_urls', 'teacher_urls', 'signup_urls'];
 			let subItemDetail = await subDetailModal.findOne({
@@ -145,9 +140,7 @@ module.exports = {
 						attributes: teacherFields,
 					});
 					teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
-					teachers.forEach((item) => {
-						item.photo = config.preUrl.photoUrl + item.photo;
-					});
+
 					subjectDetail.teacher_detail = teachers;
 					subjectDetail.start_time = moment(subjectDetail.start_time).format(timeformat);
 					subjectDetail.end_time = moment(subjectDetail.end_time).format(timeformat);

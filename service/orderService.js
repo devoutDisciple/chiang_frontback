@@ -1,5 +1,4 @@
 const moment = require('moment');
-const config = require('../config/config');
 const resultMessage = require('../util/resultMessage');
 const sequelize = require('../dataSource/MysqlPoolClass');
 const order = require('../models/order');
@@ -41,6 +40,7 @@ module.exports = {
 			const data = await orderModal.findOne({
 				where: { user_id: userid, subject_id: subId, project_id: proId, is_delete: 1 },
 			});
+			if (!data) return res.send(resultMessage.success({}));
 			const result = responseUtil.renderFieldsObj(data, ['id', 'team_uuid', 'pay_state', 'type']);
 			res.send(resultMessage.success(result));
 		} catch (error) {
@@ -100,9 +100,6 @@ module.exports = {
 						attributes: teacherFields,
 					});
 					teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
-					teachers.forEach((item) => {
-						item.photo = config.preUrl.photoUrl + item.photo;
-					});
 					subjectDetail.teacher_detail = teachers;
 					subjectDetail.start_time = moment(subjectDetail.start_time).format(dayFormat);
 					subjectDetail.end_time = moment(subjectDetail.end_time).format(dayFormat);
@@ -150,9 +147,6 @@ module.exports = {
 						attributes: teacherFields,
 					});
 					teachers = responseUtil.renderFieldsAll(teachers, teacherFields);
-					teachers.forEach((item) => {
-						item.photo = config.preUrl.photoUrl + item.photo;
-					});
 					subjectDetail.teacher_detail = teachers;
 					subjectDetail.start_time = moment(subjectDetail.start_time).format(dayFormat);
 					subjectDetail.end_time = moment(subjectDetail.end_time).format(dayFormat);

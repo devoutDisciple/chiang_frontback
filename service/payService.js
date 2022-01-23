@@ -63,7 +63,7 @@ module.exports = {
 						return res.send(resultMessage.error('人数已满'));
 					}
 					// 已经过了时间
-					if (moment(new Date()).diff(moment(orderDetail.end_time), 'minute') > 72 * 60) {
+					if (moment(new Date()).diff(moment(teamDetail.end_time), 'minute') > 72 * 60) {
 						return res.send(resultMessage.error('组团已过期'));
 					}
 					teamUuid = teamId;
@@ -81,7 +81,7 @@ module.exports = {
 				money,
 				openId,
 				userid: userId,
-				type,
+				type: Number(type),
 				subject_id,
 				project_id,
 				teamUuid,
@@ -176,10 +176,10 @@ module.exports = {
 				pay_state: result.trade_state === 'SUCCESS' ? 1 : result.trade_state,
 				create_time: moment().format(timeformat),
 			};
-			if (result.attach.type === 2) orderParams.team_uuid = result.attach.tid;
+			if (Number(result.attach.type) === 2) orderParams.team_uuid = result.attach.tid;
 			const orderDetail = await orderModal.create({ ...orderParams });
 			// 如果是报名，下面的逻辑不用走
-			if (result.attach.type === 1) {
+			if (Number(result.attach.type) === 1) {
 				// subject的报名人数+1
 				subjectModal.increment({ total_person: 1, apply_num: 1 }, { where: { id: result.attach.subId } });
 				return res.send(resultMessage.success('success'));
@@ -200,17 +200,17 @@ module.exports = {
 					user_ids: JSON.stringify([result.attach.userid]),
 					state: 2, // 拼团状态 1-未开始 2-进行中 3-拼团成功 4-拼团失败 5-拼团结束
 					create_time: moment().format(timeformat),
-					end_time: moment().format(timeformat),
+					end_time: moment().add(3, 'days').format(timeformat),
 				});
 			} else {
 				// 如果是与拼团
-				const user_ids = JSON.stringify(teamDetail.user_ids);
-				const order_ids = JSON.stringify(teamDetail.order_ids);
+				const user_ids = JSON.parse(teamDetail.user_ids);
+				const order_ids = JSON.parse(teamDetail.order_ids);
 				if (!user_ids.includes(result.attach.userid)) {
 					user_ids.push(result.attach.userid);
 				}
-				if (!order_ids.includes(result.attach.userid)) {
-					order_ids.push(result.attach.userid);
+				if (!order_ids.includes(orderDetail.id)) {
+					order_ids.push(orderDetail.id);
 				}
 				const conditions = {
 					num: Number(teamDetail.num) + 1,
@@ -219,7 +219,7 @@ module.exports = {
 				};
 				if (conditions.num === 3) conditions.state = 3;
 				// 更新拼团订单
-				await teamModal.update(conditions, { where: { id: result.attach.tid } });
+				await teamModal.update(conditions, { where: { uuid: result.attach.tid } });
 			}
 			// subject的拼团人数+1
 			subjectModal.increment({ total_person: 1, cluster_num: 1 }, { where: { id: result.attach.subId } });
