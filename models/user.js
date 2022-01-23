@@ -30,6 +30,7 @@ module.exports = (sequelize) => {
     photo: {
       type: Sequelize.STRING(255),
       allowNull: true,
+      defaultValue: "https:\/\/www.chiangky.com\/photo\/photo.png",
       comment: "头像"
     },
     bg_url: {

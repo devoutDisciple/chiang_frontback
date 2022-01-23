@@ -35,10 +35,10 @@ module.exports = (sequelize) => {
       defaultValue: "[]",
       comment: "报名的用户ids"
     },
-    is_starter: {
+    start_user_id: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      comment: "1-是 2-不是"
+      comment: "发起人的id"
     },
     num: {
       type: Sequelize.INTEGER,

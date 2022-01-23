@@ -178,11 +178,15 @@ module.exports = {
 			};
 			if (result.attach.type === 2) orderParams.team_uuid = result.attach.tid;
 			const orderDetail = await orderModal.create({ ...orderParams });
+			// 如果是报名，下面的逻辑不用走
+			if (result.attach.type === 1) {
+				// subject的报名人数+1
+				subjectModal.increment({ total_person: 1, apply_num: 1 }, { where: { id: result.attach.subId } });
+				return res.send(resultMessage.success('success'));
+			}
 			let teamDetail;
 			// 如果已存在拼团
-			if (result.attach.tid && result.attach.type === 2) {
-				teamDetail = await teamModal.findOne({ where: { uuid: result.attach.tid } });
-			}
+			if (result.attach.tid) teamDetail = await teamModal.findOne({ where: { uuid: result.attach.tid } });
 			// 如果是发起拼团
 			if (!teamDetail) {
 				// 创建拼团的订单
@@ -190,7 +194,7 @@ module.exports = {
 					uuid: result.attach.tid,
 					subject_id: result.attach.subId,
 					project_id: result.attach.proId,
-					start_id: result.attach.userid,
+					start_user_id: result.attach.userid,
 					num: 1,
 					order_ids: JSON.stringify([orderDetail.id]),
 					user_ids: JSON.stringify([result.attach.userid]),
@@ -198,9 +202,8 @@ module.exports = {
 					create_time: moment().format(timeformat),
 					end_time: moment().format(timeformat),
 				});
-			}
-			// 如果是与拼团
-			if (teamDetail) {
+			} else {
+				// 如果是与拼团
 				const user_ids = JSON.stringify(teamDetail.user_ids);
 				const order_ids = JSON.stringify(teamDetail.order_ids);
 				if (!user_ids.includes(result.attach.userid)) {
@@ -218,6 +221,8 @@ module.exports = {
 				// 更新拼团订单
 				await teamModal.update(conditions, { where: { id: result.attach.tid } });
 			}
+			// subject的拼团人数+1
+			subjectModal.increment({ total_person: 1, cluster_num: 1 }, { where: { id: result.attach.subId } });
 			res.send(resultMessage.success('success'));
 		} catch (error) {
 			console.log(error);
@@ -286,6 +291,20 @@ module.exports = {
 					},
 				);
 			}
+			// 查询该条退款信息是否存在
+			const payRecord = await payModal.findOne({
+				where: {
+					user_id: orderDetail.user_id,
+					open_id: orderDetail.open_id,
+					type: orderDetail.type,
+					pay_type: 2, // 退款
+					out_trade_no: result.out_refund_no,
+					transaction_id: result.transaction_id,
+					trade_state: result.refund_status,
+				},
+			});
+			// 如果存在该条退款信息
+			if (payRecord) return res.send(resultMessage.success('success'));
 			// 创建退款支付信息
 			await payModal.create({
 				user_id: orderDetail.user_id,
@@ -299,6 +318,15 @@ module.exports = {
 				success_time: moment(result.success_time).format(timeformat),
 				create_time: moment(result.success_time).format(timeformat),
 			});
+			const decrementParams = {};
+			if (Number(orderDetail.type) === 1) {
+				decrementParams.apply_num = 1;
+			} else {
+				decrementParams.cluster_num = 1;
+			}
+			decrementParams.total_person = 1;
+			// 用户的关注 - 1
+			subjectModal.decrement(decrementParams, { where: { id: orderDetail.id } });
 			res.send(resultMessage.success('success'));
 		} catch (error) {
 			console.log(error);

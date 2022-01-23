@@ -1,27 +1,37 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize) => {
-  return sequelize.define('teacher', {
+  return sequelize.define('account', {
     id: {
       autoIncrement: true,
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    name: {
+    username: {
       type: Sequelize.STRING(255),
       allowNull: true
     },
-    photo: {
+    account: {
       type: Sequelize.STRING(255),
+      allowNull: true
+    },
+    password: {
+      type: Sequelize.STRING(255),
+      allowNull: true
+    },
+    phone: {
+      type: Sequelize.STRING(255),
+      allowNull: true
+    },
+    role: {
+      type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: "photo.png",
-      comment: "头像"
+      comment: "1-超级管理员 2-管理员 3-用户"
     },
     create_time: {
       type: Sequelize.DATE,
-      allowNull: true,
-      comment: "创建时间"
+      allowNull: true
     },
     is_delete: {
       type: Sequelize.INTEGER,
@@ -31,7 +41,7 @@ module.exports = (sequelize) => {
     }
   }, {
     sequelize,
-    tableName: 'teacher',
+    tableName: 'account',
     timestamps: false,
     indexes: [
       {
