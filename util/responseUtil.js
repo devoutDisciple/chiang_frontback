@@ -9,7 +9,7 @@ module.exports = {
 			const obj = {};
 			fieldsArr.forEach((key) => {
 				obj[key] = item[key];
-				if (key === 'start_time' || key === 'end_time' || key === 'update_time') {
+				if (key === 'start_time' || key === 'end_time' || key === 'update_time' || key === 'create_time') {
 					obj[key] = moment(item[key]).format('YYYY-MM-DD HH:mm:ss');
 				}
 			});
@@ -24,7 +24,7 @@ module.exports = {
 		if (!data || Object.keys(data) === 0) return result;
 		fieldsArr.forEach((key) => {
 			result[key] = data[key];
-			if (key === 'start_time' || key === 'end_time' || key === 'update_time') {
+			if (key === 'start_time' || key === 'end_time' || key === 'update_time' || key === 'create_time') {
 				result[key] = moment(result[key]).format('YYYY-MM-DD HH:mm:ss');
 			}
 		});

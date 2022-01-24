@@ -4,32 +4,18 @@ const sequelize = require('../dataSource/MysqlPoolClass');
 const order = require('../models/order');
 const subject = require('../models/subject');
 const teacher = require('../models/teacher');
+const team = require('../models/team');
 const responseUtil = require('../util/responseUtil');
+const { filterTeamState } = require('../util/filter');
 
+const teamModal = team(sequelize);
 const teacherModal = teacher(sequelize);
 const subjectModal = subject(sequelize);
 const orderModal = order(sequelize);
 
 const dayFormat = 'YYYY.MM.DD';
 
-// const subjectFields = [
-// 	'id',
-// 	'project_id',
-// 	'title',
-// 	'start_time',
-// 	'end_time',
-// 	'url',
-// 	'price',
-// 	'teacher_ids',
-// 	'apply_price',
-// 	'cluster_price',
-// 	'total_person',
-// 	'apply_num',
-// 	'cluster_num',
-// 	'limit_num',
-// 	'state',
-// 	'create_time',
-// ];
+orderModal.belongsTo(teamModal, { foreignKey: 'team_uuid', targetKey: 'uuid', as: 'teamDetail' });
 
 module.exports = {
 	// 获取课程详情
@@ -54,35 +40,28 @@ module.exports = {
 			const { userid } = req.query;
 			if (!userid) return res.send(resultMessage.success([]));
 			const data = await orderModal.findAll({
-				where: { user_id: userid, is_delete: 1 },
+				where: {
+					user_id: userid,
+					is_delete: 1,
+				},
+				include: [
+					{
+						model: teamModal,
+						as: 'teamDetail',
+						attributes: ['id', 'order_ids', 'user_ids', 'start_user_id', 'num', 'state'],
+					},
+				],
 			});
-			const orderList = responseUtil.renderFieldsAll(data, ['id', 'team_uuid', 'subject_id', 'pay_state', 'type']);
-			// result.map(async (item) => {
-			// 	let subjectDetail = await subjectModal.findOne({ where: { id: item.subject_id } });
-			// 	subjectDetail = responseUtil.renderFieldsObj(subjectDetail, [
-			// 		'id',
-			// 		'project_id',
-			// 		'title',
-			// 		'url',
-			// 		'price',
-			// 		'teacher_ids',
-			// 		'apply_price',
-			// 		'cluster_price',
-			// 		'total_person',
-			// 		'apply_num',
-			// 		'cluster_num',
-			// 		'limit_num',
-			// 		'state',
-			// 		'create_time',
-			// 	]);
-			// 	item.subjectDetail = subjectDetail;
-			// });
+			const orderList = responseUtil.renderFieldsAll(data, ['id', 'team_uuid', 'subject_id', 'pay_state', 'type', 'teamDetail']);
 			const result = [];
 			if (orderList && orderList.length !== 0) {
 				let len = orderList.length;
 				while (len > 0) {
 					len -= 1;
-					let subjectDetail = await subjectModal.findOne({ where: { id: orderList[len].subject_id } });
+					const orderItem = orderList[len];
+					let subjectDetail = await subjectModal.findOne({
+						where: { id: orderItem.subject_id },
+					});
 					subjectDetail = responseUtil.renderFieldsObj(subjectDetail, [
 						'id',
 						'project_id',
@@ -104,8 +83,11 @@ module.exports = {
 					subjectDetail.start_time = moment(subjectDetail.start_time).format(dayFormat);
 					subjectDetail.end_time = moment(subjectDetail.end_time).format(dayFormat);
 					subjectDetail.create_time = moment(subjectDetail.create_time).format(dayFormat);
-					orderList[len].subjectDetail = subjectDetail;
-					result.push(orderList[len]);
+					orderItem.subjectDetail = subjectDetail;
+					if (orderItem.teamDetail && orderItem.teamDetail.state) {
+						orderItem.teamState = filterTeamState(orderItem.teamDetail.state);
+					}
+					result.push(orderItem);
 				}
 			}
 			res.send(resultMessage.success(result));
@@ -122,14 +104,22 @@ module.exports = {
 			if (!userid) return res.send(resultMessage.success([]));
 			const data = await orderModal.findAll({
 				where: { user_id: userid, type, is_delete: 1 },
+				include: [
+					{
+						model: teamModal,
+						as: 'teamDetail',
+						attributes: ['id', 'order_ids', 'user_ids', 'start_user_id', 'num', 'state'],
+					},
+				],
 			});
-			const orderList = responseUtil.renderFieldsAll(data, ['id', 'team_uuid', 'subject_id', 'pay_state', 'type']);
+			const orderList = responseUtil.renderFieldsAll(data, ['id', 'team_uuid', 'subject_id', 'pay_state', 'type', 'teamDetail']);
 			const result = [];
 			if (orderList && orderList.length !== 0) {
 				let len = orderList.length;
 				while (len > 0) {
 					len -= 1;
-					let subjectDetail = await subjectModal.findOne({ where: { id: orderList[len].subject_id } });
+					const orderItem = orderList[len];
+					let subjectDetail = await subjectModal.findOne({ where: { id: orderItem.subject_id } });
 					subjectDetail = responseUtil.renderFieldsObj(subjectDetail, [
 						'id',
 						'project_id',
@@ -151,8 +141,11 @@ module.exports = {
 					subjectDetail.start_time = moment(subjectDetail.start_time).format(dayFormat);
 					subjectDetail.end_time = moment(subjectDetail.end_time).format(dayFormat);
 					subjectDetail.create_time = moment(subjectDetail.create_time).format(dayFormat);
-					orderList[len].subjectDetail = subjectDetail;
-					result.push(orderList[len]);
+					orderItem.subjectDetail = subjectDetail;
+					if (orderItem.teamDetail && orderItem.teamDetail.state) {
+						orderItem.teamState = filterTeamState(orderItem.teamDetail.state);
+					}
+					result.push(orderItem);
 				}
 			}
 			res.send(resultMessage.success(result));

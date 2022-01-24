@@ -27,8 +27,8 @@ schedule.scheduleJob('* 1 * * * *', async () => {
 	if (!results || results.length === 0) return;
 	results.map(async (item) => {
 		// 如果超过72小时
-		// if (moment(new Date()).diff(moment(item.end_time), 'minute') > 72 * 60) {
-		if (moment(new Date()).diff(moment(item.end_time), 'minute') > 1 * 60) {
+		if (moment(new Date()).diff(moment(item.end_time), 'minute') > 72 * 60) {
+			// if (moment(new Date()).diff(moment(item.end_time), 'minute') > 1 * 60) {
 			// 将状态刚更新为拼团超时而失败
 			await teamModal.update({ state: 4 }, { where: { id: item.id } });
 			console.log(`更新拼团状态: 拼团id: ${item.id}, 更新状态为：拼团超时而失败`);

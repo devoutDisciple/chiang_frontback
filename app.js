@@ -46,17 +46,17 @@ app.use(express.json());
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }));
 
-// // 改变默认的log
-// ChangeLog.changeLog();
+// 改变默认的log
+ChangeLog.changeLog();
 
-// // 改变默认的info
+// 改变默认的info
 // ChangeLog.changeInfo();
 
 // // 改变默认的error
 // ChangeLog.changeError();
 
-// 自定义日志
-app.use(LogMiddleware);
+// // 自定义日志
+// app.use(LogMiddleware);
 
 app.all('*', (req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
