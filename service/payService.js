@@ -262,8 +262,8 @@ module.exports = {
 			//     user_received_account: '支付用户零钱'
 			//   }
 			const result = await wechatUtil.getRefundsNotifyMsg(body);
+			console.log(result, '微信退款回调数据');
 			if (result.refund_status !== 'SUCCESS') return;
-
 			const orderDetail = await orderModal.findOne({
 				where: {
 					out_trade_no: result.out_trade_no,
@@ -328,59 +328,6 @@ module.exports = {
 			// 用户的关注 - 1
 			subjectModal.decrement(decrementParams, { where: { id: orderDetail.id } });
 			res.send(resultMessage.success('success'));
-		} catch (error) {
-			console.log(error);
-			res.send(resultMessage.error());
-		}
-	},
-
-	testSign: async (req, res) => {
-		try {
-			// uuid: attach.uuid,
-			// 	user_id: attach.userid,
-			// 	open_id: result.payer.openid,
-			// 	out_trade_no: result.out_trade_no,
-			// 	transaction_id: result.transaction_id,
-			// 	trade_type: result.trade_type,
-			// 	trade_state: result.trade_state,
-			// 	money: 1,
-			// 	success_time: moment(result.success_time).format(timeformat),
-			// 	create_time: moment().format(timeformat),
-			const attach = {
-				uuid: 'sjfkdskffdsfds',
-				user_id: 1,
-				open_id: 'fdsfs',
-				out_trade_no: 'gfdgfdgfd',
-				transaction_id: 'gfidjgdidf',
-				trade_state: 'success',
-				money: 1,
-				success_time: moment().format(timeformat),
-				create_time: moment().format(timeformat),
-			};
-			const result = attach;
-			const payRecord = await payModal.findOne({
-				where: {
-					user_id: attach.userid,
-					opend_id: result.openid,
-					out_trade_no: attach.out_trade_no,
-					transaction_id: attach.transaction_id,
-				},
-			});
-			// 如果存在该条记录
-			if (payRecord) return;
-			// 创建支付记录
-			await payModal.create({
-				user_id: attach.userid,
-				open_id: result.openid,
-				out_trade_no: result.out_trade_no,
-				transaction_id: result.transaction_id,
-				trade_state: result.trade_state,
-				money: 1,
-				success_time: moment(result.success_time).format(timeformat),
-				create_time: moment().format(timeformat),
-			});
-			// 创建订单信息
-			res.send(resultMessage.success('成功了'));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());

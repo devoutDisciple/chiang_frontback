@@ -31,7 +31,7 @@ module.exports = {
 				};
 				// 组团的唯一标识
 				if (type === 2) attach.tid = teamUuid;
-				console.log(attach, '支付传输数据');
+				console.log(JSON.parse(attach), '支付传输数据');
 				const params = {
 					// 订单编号
 					out_trade_no: `${ObjectUtil.getRandomStr(12)}${new Date().getTime()}`,
@@ -178,6 +178,7 @@ module.exports = {
 					},
 				};
 				const result = await pay.refunds(params);
+				console.log('退款结果是：', JSON.stringify(result));
 				// {
 				//   status: 'PROCESSING', // SUCCESS：退款成功 CLOSED：退款关闭 PROCESSING：退款处理中 ABNORMAL：退款异常
 				//   amount: {
