@@ -31,7 +31,7 @@ module.exports = {
 				};
 				// 组团的唯一标识
 				if (type === 2) attach.tid = teamUuid;
-				console.log(JSON.parse(attach), '支付传输数据');
+				console.log(JSON.stringify(attach), '支付传输数据');
 				const params = {
 					// 订单编号
 					out_trade_no: `${ObjectUtil.getRandomStr(12)}${new Date().getTime()}`,

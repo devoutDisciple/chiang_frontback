@@ -262,7 +262,7 @@ module.exports = {
 			//     user_received_account: '支付用户零钱'
 			//   }
 			const result = await wechatUtil.getRefundsNotifyMsg(body);
-			console.log(result, '微信退款回调数据');
+			console.log(JSON.stringify(result), '微信退款回调数据');
 			if (result.refund_status !== 'SUCCESS') return;
 			const orderDetail = await orderModal.findOne({
 				where: {
