@@ -19,7 +19,7 @@ module.exports = {
 		try {
 			const { projectid } = req.query;
 			if (!projectid) return res.send(resultMessage.success([]));
-			const commonFields = ['id', 'project_id', 'title', 'start_time', 'end_time', 'teacher_ids', 'price'];
+			const commonFields = ['id', 'project_id', 'title', 'start_time', 'end_time', 'teacher_ids', 'price', 'tags'];
 			const data = await subjectModal.findAll({
 				where: { project_id: projectid, is_delete: 1 },
 				attributes: commonFields,
@@ -32,6 +32,7 @@ module.exports = {
 					item.teacher_ids = JSON.parse(item.teacher_ids);
 					teacher_ids = teacher_ids.concat(item.teacher_ids);
 				}
+				item.tags = JSON.parse(item.tags);
 				item.start_time = moment(item.start_time).format(timeformat);
 				item.end_time = moment(item.end_time).format(timeformat);
 			});
@@ -74,6 +75,7 @@ module.exports = {
 				'cluster_price',
 				'total_person',
 				'limit_num',
+				'tags',
 				'state',
 				'sort',
 			];
@@ -116,7 +118,7 @@ module.exports = {
 	getAllSubjectByKeywords: async (req, res) => {
 		try {
 			const { keywords } = req.query;
-			const commonFields = ['id', 'project_id', 'title', 'start_time', 'end_time', 'price', 'teacher_ids', 'create_time'];
+			const commonFields = ['id', 'project_id', 'title', 'start_time', 'end_time', 'price', 'teacher_ids', 'create_time', 'tags'];
 			let subjectLists = await subjectModal.findAll({
 				where: {
 					title: {

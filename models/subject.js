@@ -82,6 +82,12 @@ module.exports = (sequelize) => {
       defaultValue: 1,
       comment: "1-未开始 2-进行中 3-已结束"
     },
+    tags: {
+      type: Sequelize.STRING(800),
+      allowNull: true,
+      defaultValue: "[]",
+      comment: "标签"
+    },
     sort: {
       type: Sequelize.INTEGER,
       allowNull: true,

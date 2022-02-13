@@ -50,13 +50,13 @@ app.use(express.urlencoded({ extended: false }));
 ChangeLog.changeLog();
 
 // 改变默认的info
-// ChangeLog.changeInfo();
+ChangeLog.changeInfo();
 
-// // 改变默认的error
-// ChangeLog.changeError();
+// 改变默认的error
+ChangeLog.changeError();
 
-// // 自定义日志
-// app.use(LogMiddleware);
+// 自定义日志
+app.use(LogMiddleware);
 
 app.all('*', (req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');

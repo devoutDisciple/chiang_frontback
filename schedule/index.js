@@ -30,9 +30,9 @@ schedule.scheduleJob('* 1 * * * *', async () => {
 	if (!results || results.length === 0) return;
 	results.map(async (item) => {
 		// 如果超过72小时
-		// if (moment(new Date()).diff(moment(item.end_time), 'minute') > 72 * 60) {
-		// 超过1小时的都退款
-		if (moment(new Date()).diff(moment(item.create_time), 'minute') > 1 * 60) {
+		if (moment(new Date()).diff(moment(item.end_time), 'minute') > 72 * 60) {
+			// 超过1小时的都退款
+			// if (moment(new Date()).diff(moment(item.create_time), 'minute') > 1 * 60) {
 			console.log(`拼团的id: ${item.id}, 开始时间：${item.create_time}, 结束时间：${item.end_time}`);
 			// 将状态刚更新为拼团超时而失败
 			await teamModal.update({ state: 4 }, { where: { id: item.id } });
