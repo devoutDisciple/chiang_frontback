@@ -43,7 +43,7 @@ module.exports = {
 	async paySignup(req, res) {
 		try {
 			// type = 1 报名 type =2 组团
-			const { subject_id, project_id, openId, userId, teamId } = req.body;
+			const { subject_id, project_id, openId, userId, teamId, name, sex, time, en, ma } = req.body;
 			let { type } = req.body;
 			type = Number(type);
 			if (!openId || !subject_id) return res.send(resultMessage.error('系统错误'));
@@ -86,6 +86,11 @@ module.exports = {
 				project_id,
 				teamUuid,
 				description: desc,
+				name,
+				sex,
+				time,
+				en,
+				ma,
 			});
 			result = {
 				timeStamp: parseInt(`${+new Date() / 1000}`, 10).toString(),
@@ -129,6 +134,7 @@ module.exports = {
 			//     amount: { total: 2, payer_total: 2, currency: 'CNY', payer_currency: 'CNY' }
 			//   }
 			result.attach = JSON.parse(result.attach);
+			// {"userid":36,"type":1,"subId":29,"proId":1,"name":"张振张振张振","sex":1,"time":"2022-03-01","en":1,"ma":1}
 			// 查询是否存在该账单
 			const payRecode = await payModal.findOne({
 				where: {
@@ -174,6 +180,11 @@ module.exports = {
 				project_id: result.attach.proId,
 				type: result.attach.type,
 				pay_state: result.trade_state === 'SUCCESS' ? 1 : result.trade_state,
+				english: result.attach.en,
+				math: result.attach.ma,
+				name: result.attach.name,
+				time: result.attach.time,
+				sex: result.attach.sex,
 				create_time: moment().format(timeformat),
 			};
 			if (Number(result.attach.type) === 2) orderParams.team_uuid = result.attach.tid;

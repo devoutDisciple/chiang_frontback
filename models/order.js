@@ -53,6 +53,31 @@ module.exports = (sequelize) => {
       allowNull: true,
       comment: "1-报名 2-组团"
     },
+    english: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      comment: "1-英语一 2：英语二"
+    },
+    math: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      comment: "1-数学一 2-数学二 3-数学三"
+    },
+    name: {
+      type: Sequelize.STRING(255),
+      allowNull: true,
+      comment: "真实姓名"
+    },
+    sex: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      comment: "1-男 2-女"
+    },
+    time: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      comment: "入学时间"
+    },
     create_time: {
       type: Sequelize.DATE,
       allowNull: true

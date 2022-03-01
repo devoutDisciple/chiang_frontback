@@ -16,7 +16,7 @@ const pay = new WxPay({
 
 module.exports = {
 	// 微信支付，获取签名
-	wechatPay: ({ money, openId, userid, type, subject_id, project_id, teamUuid, description }) => {
+	wechatPay: ({ money, openId, userid, type, subject_id, project_id, teamUuid, description, name, sex, time, en, ma }) => {
 		// money:单位元，微信支付单位是分
 		// openid:用户的openid
 		return new Promise(async (resolve, reject) => {
@@ -28,6 +28,11 @@ module.exports = {
 					type,
 					subId: subject_id,
 					proId: project_id,
+					name,
+					sex,
+					time,
+					en,
+					ma,
 				};
 				// 组团的唯一标识
 				if (type === 2) attach.tid = teamUuid;
@@ -45,6 +50,7 @@ module.exports = {
 					description,
 				};
 				const result = await pay.transactions_jsapi(params);
+				console.log(JSON.stringify(result), 111);
 				resolve(result);
 			} catch (error) {
 				reject(error);
